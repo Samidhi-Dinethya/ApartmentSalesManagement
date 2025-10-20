@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Write a Review</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-control, .form-select { border-radius: 10px; border: 2px solid #e9ecef; }
+        .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 0; }
+        .rating-stars { font-size: 2rem; cursor: pointer; }
+        .rating-stars:hover { color: #ffc107; }
+        .star-selected { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 mb-3"><i class="fas fa-star me-3"></i>Write a Review</h1>
+            <p class="lead">Share your experience with this apartment</p>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Review Form</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Flash Messages -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Apartment Info -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-home me-2"></i>Reviewing:</h6>
+                            <strong th:text="${apartment.title}">Apartment Title</strong><br>
+                            <small class="text-muted" th:text="${apartment.address}">Apartment Address</small>
+                        </div>
+
+                        <form th:action="@{/reviews/create/{apartmentId}(apartmentId=${apartment.id})}" method="post" th:object="${review}">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Review Title <span class="text-danger">*</span></label>
+                                <input type="text" id="title" name="title" class="form-control" required 
+                                       placeholder="Enter a title for your review" th:field="*{title}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Rating <span class="text-danger">*</span></label>
+                                <div class="rating-stars" id="ratingStars">
+                                    <span class="star" data-rating="1">☆</span>
+                                    <span class="star" data-rating="2">☆</span>
+                                    <span class="star" data-rating="3">☆</span>
+                                    <span class="star" data-rating="4">☆</span>
+                                    <span class="star" data-rating="5">☆</span>
+                                </div>
+                                <input type="hidden" id="rating" name="rating" th:field="*{rating}" required>
+                                <div class="form-text">Click on the stars to rate (1 = Poor, 5 = Excellent)</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Review Content <span class="text-danger">*</span></label>
+                                <textarea id="content" name="content" class="form-control" rows="6" required 
+                                          placeholder="Share your detailed experience with this apartment..." th:field="*{content}"></textarea>
+                                <div class="form-text">Please provide specific details about your experience.</div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a th:href="@{/apartments/{id}(id=${apartment.id})}" class="btn btn-outline-secondary me-md-2">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Apartment
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Review Guidelines -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h6><i class="fas fa-info-circle me-2"></i>Review Guidelines</h6>
+                        <ul class="mb-0 small">
+                            <li>Be honest and constructive in your feedback</li>
+                            <li>Focus on your actual experience with the apartment</li>
+                            <li>Avoid personal attacks or inappropriate language</li>
+                            <li>Your review will be moderated before being published</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Star rating functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('rating');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    ratingInput.value = rating;
+                    
+                    // Update star display
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.textContent = '★';
+                            s.classList.add('star-selected');
+                        } else {
+                            s.textContent = '☆';
+                            s.classList.remove('star-selected');
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.style.color = '#6c757d';
+                        }
+                    });
+                });
+            });
+            
+            // Reset stars on mouse leave
+            document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+                const currentRating = parseInt(ratingInput.value) || 0;
+                stars.forEach((s, index) => {
+                    if (index < currentRating) {
+                        s.style.color = '#ffc107';
+                    } else {
+                        s.style.color = '#6c757d';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

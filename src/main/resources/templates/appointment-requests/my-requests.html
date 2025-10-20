@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Appointment Requests</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .status-badge { font-size: 0.8em; }
+        .request-card { transition: transform 0.2s; }
+        .request-card:hover { transform: translateY(-2px); }
+        .pending { border-left: 4px solid #ffc107; }
+        .approved { border-left: 4px solid #28a745; }
+        .rejected { border-left: 4px solid #dc3545; }
+        .completed { border-left: 4px solid #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-calendar-check me-2"></i>My Appointment Requests</h2>
+            <div>
+                <a th:href="@{/appointment-requests/submit}" class="btn btn-success me-2">
+                    <i class="fas fa-plus me-2"></i>Submit New Request
+                </a>
+                <a th:href="@{/}" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Requests List -->
+        <div th:if="${#lists.isEmpty(requests)}" class="text-center py-5">
+            <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Requests Found</h4>
+            <p class="text-muted">You haven't submitted any appointment requests yet.</p>
+            <a th:href="@{/appointment-requests/submit}" class="btn btn-primary">
+                <i class="fas fa-calendar-plus me-2"></i>Submit Your First Request
+            </a>
+        </div>
+
+        <div th:if="${not #lists.isEmpty(requests)}">
+            <div class="row">
+                <div th:each="request : ${requests}" class="col-md-6 col-lg-4 mb-3">
+                    <div class="card request-card" 
+                         th:classappend="${request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).PENDING ? 'pending' : 
+                                        request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).APPROVED ? 'approved' :
+                                        request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).REJECTED ? 'rejected' : 'completed'}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span th:class="${request.status.cssClass}" class="status-badge">
+                                    <i th:class="${request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).PENDING ? 'fas fa-clock' : 
+                                               request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).APPROVED ? 'fas fa-check' :
+                                               request.status == T(com.example.apartmentsalesmanagementsystem.entity.AppointmentRequestStatus).REJECTED ? 'fas fa-times' : 'fas fa-check-double'}"></i>
+                                    <span th:text="${request.status.displayName}">Status</span>
+                                </span>
+                                <small class="text-muted" th:text="${request.formattedCreatedDate}">Date</small>
+                            </div>
+                            
+                            <h6 class="card-title" th:text="${request.apartment != null ? request.apartment.title : 'General Inquiry'}">Request Title</h6>
+                            
+                            <p class="card-text">
+                                <i class="fas fa-calendar me-2 text-muted"></i>
+                                <span th:text="${request.preferredDate}">Date</span>
+                            </p>
+                            <p class="card-text">
+                                <i class="fas fa-clock me-2 text-muted"></i>
+                                <span th:text="${request.preferredTime}">Time</span>
+                            </p>
+                            
+                            <p class="card-text">
+                                <i class="fas fa-envelope me-2 text-muted"></i>
+                                <span th:text="${request.email}">Email</span>
+                            </p>
+                            
+                            <div th:if="${request.hasReply()}" class="alert alert-info p-2 mb-2">
+                                <small><strong>Admin Reply:</strong></small>
+                                <div class="small" th:text="${#strings.abbreviate(request.adminReply, 100)}">Reply</div>
+                            </div>
+                            
+                            <div th:if="${request.isAssigned()}" class="alert alert-success p-2 mb-2">
+                                <small><strong>Assigned Agent:</strong></small>
+                                <div class="small" th:text="${request.assignedAgent.fullName}">Agent Name</div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Request #<span th:text="${request.id}">1</span></small>
+                                <button type="button" class="btn btn-sm btn-outline-info" 
+                                        th:data-request-id="${request.id}"
+                                        onclick="showRequestDetails(this.getAttribute('data-request-id'))">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Details Modal -->
+    <div class="modal fade" id="requestDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Request Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="requestDetailsContent">
+                    <!-- Content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showRequestDetails(requestId) {
+            // For now, we'll just show a simple message
+            // In a real application, you might want to fetch details via AJAX
+            const modal = new bootstrap.Modal(document.getElementById('requestDetailsModal'));
+            document.getElementById('requestDetailsContent').innerHTML = `
+                <div class="text-center">
+                    <i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
+                    <h5>Request #${requestId}</h5>
+                    <p class="text-muted">Detailed view functionality can be implemented here.</p>
+                </div>
+            `;
+            modal.show();
+        }
+    </script>
+</body>
+</html>

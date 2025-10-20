@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skyline Apartments - Home</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0;
+            text-align: center;
+        }
+        
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .btn-primary {
+            background-color: #667eea;
+            border-color: #667eea;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5a6fd8;
+            border-color: #5a6fd8;
+        }
+        
+        .btn-outline-light {
+            border-width: 2px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        
+        .stats-section {
+            background-color: #f8f9fa;
+            padding: 60px 0;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .apartment-card {
+            height: 100%;
+        }
+        
+        .apartment-card .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .price-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .features-section {
+            padding: 80px 0;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .feature-card i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>
+                Skyline Apartments
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/apartments">Apartments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/agents">Our Agents</a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="!isAuthenticated()">
+                        <a class="nav-link" href="/register">Register</a>
+                    </li>
+                    <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            <span sec:authentication="name">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/dashboard">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/users/profile">Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Find Your Dream Apartment</h1>
+            <p class="lead">Discover the perfect apartment for sale with our comprehensive management system</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/apartments" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Browse Apartments
+                </a>
+                <a href="/register" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Get Started
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-building"></i>
+                        <h3 th:text="${totalApartments}">0</h3>
+                        <p class="text-muted">Total Apartments</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-home"></i>
+                        <h3 th:text="${availableApartments}">0</h3>
+                        <p class="text-muted">Available Now</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3>500+</h3>
+                        <p class="text-muted">Happy Clients</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3>4.8</h3>
+                        <p class="text-muted">Customer Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Apartments -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Featured Apartments</h2>
+                <p class="text-muted">Discover our latest and most popular listings</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4" th:each="apartment : ${recentApartments}">
+                    <div class="card apartment-card">
+                        <img th:if="${apartment.imageUrl}" th:src="${apartment.imageUrl}" class="card-img-top" alt="Apartment">
+                        <img th:unless="${apartment.imageUrl}" src="https://via.placeholder.com/300x200?text=Apartment" class="card-img-top" alt="Apartment">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${apartment.title}">Apartment Title</h5>
+                            <p class="card-text text-muted" th:text="${apartment.city + ', ' + apartment.state}">Location</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="price-badge" th:text="${apartment.formattedPrice}">$500,000</span>
+                                <small class="text-muted">
+                                    <i class="fas fa-bed me-1"></i>
+                                    <span th:text="${apartment.bedrooms}">3</span> bed
+                                    <i class="fas fa-bath ms-2 me-1"></i>
+                                    <span th:text="${apartment.bathrooms}">2</span> bath
+                                </small>
+                            </div>
+                            <a th:href="@{/apartments/{id}(id=${apartment.id})}" class="btn btn-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="/apartments" class="btn btn-outline-primary btn-lg">View All Apartments</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agents Showcase Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Meet Our Expert Agents</h2>
+                <p class="text-muted">Professional real estate experts ready to help you find your perfect home</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4" th:each="agent : ${agents}" th:if="${#lists.size(agents) > 0}">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body py-4">
+                            <div class="agent-avatar mb-3 mx-auto" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-tie fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title" th:text="${agent.fullName}">Agent Name</h5>
+                            <p class="card-text text-muted mb-3">Professional Real Estate Agent</p>
+                            <div class="mb-3">
+                                <small class="text-muted" th:if="${agent.email != null}">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    <span th:text="${agent.email}">email@example.com</span>
+                                </small>
+                            </div>
+                            <a th:href="@{/agents}" class="btn btn-outline-primary btn-sm">View All Agents</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Default agent cards if no agents available -->
+                <div class="col-md-4" th:if="${#lists.isEmpty(agents)}">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body py-4">
+                            <div class="agent-avatar mb-3 mx-auto" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-user-tie fa-2x text-white"></i>
+                            </div>
+                            <h5 class="card-title">Professional Team</h5>
+                            <p class="card-text text-muted mb-3">Expert Real Estate Agents</p>
+                            <p class="card-text text-muted small">Our team of experienced agents is here to help you find your perfect home.</p>
+                            <a href="/agents" class="btn btn-outline-primary btn-sm">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="/agents" class="btn btn-primary btn-lg">View All Agents</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2>Why Choose Us</h2>
+                <p class="text-muted">We provide the best Skyline Apartments experience</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-search"></i>
+                        <h4>Easy Search</h4>
+                        <p class="text-muted">Find your perfect apartment with our advanced search and filter options.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Secure Platform</h4>
+                        <p class="text-muted">Your data is protected with industry-standard security measures.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <i class="fas fa-headset"></i>
+                        <h4>24/7 Support</h4>
+                        <p class="text-muted">Get help whenever you need it with our round-the-clock customer support.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Skyline Apartments System</h5>
+                    <p>Your trusted partner in apartment sales and management.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h5>Contact Us</h5>
+                    <p>Email: info@apartmentsales.com<br>
+                    Phone: (555) 123-4567</p>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2024 Skyline Apartments System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

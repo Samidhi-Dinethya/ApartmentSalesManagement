@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - Skyline Apartments</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .apartment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .apartment-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .price-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50 !important;
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>
+                Skyline Apartments
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>
+                        <span th:text="${user.fullName}">Client</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/client/dashboard">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="/client/profile">My Profile</a></li>
+                        <li><a class="dropdown-item" href="/appointments/my">My Appointments</a></li>
+                        <li><a class="dropdown-item" href="/appointment-requests/submit">Request Appointment</a></li>
+                        <li><a class="dropdown-item" href="/reviews/my">My Reviews</a></li>
+                        <li><a class="dropdown-item" href="/client/parking-slots">Assigned Parking Slots</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <!-- User Info -->
+                    <div class="user-info">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-circle fa-3x"></i>
+                        </div>
+                        <h6 th:text="${user.fullName}">Client Name</h6>
+                        <small th:text="${user.email}">client@email.com</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/client/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/agents">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Our Agents
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointments/my">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                My Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointment-requests/submit">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                Request Appointment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reviews/my">
+                                <i class="fas fa-star me-2"></i>
+                                My Reviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/parking-slots">
+                                <i class="fas fa-car me-2"></i>
+                                Assigned Parking Slots
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/profile">
+                                <i class="fas fa-user-edit me-2"></i>
+                                My Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home me-2"></i>
+                                Back to Home
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Welcome back, <span th:text="${user.firstName}">Client</span>!</h1>
+                </div>
+
+                <!-- Welcome Card -->
+                <div class="welcome-card">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h4>Welcome to your Dashboard</h4>
+                            <p class="text-muted">Manage your appointments, reviews, and stay updated with the latest properties.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="row">
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stats-card">
+                            <i class="fas fa-calendar-check"></i>
+                            <h3>0</h3>
+                            <p>My Appointments</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stats-card">
+                            <i class="fas fa-building"></i>
+                            <h3 th:text="${availableApartments.size()}">0</h3>
+                            <p>Available Apartments</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-md-6">
+                        <div class="stats-card">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>24</h3>
+                            <p>Days Active</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Available Apartments Section -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4>Available Apartments</h4>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 col-lg-4" th:each="apartment : ${availableApartments}">
+                                <div class="apartment-card">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 th:text="${apartment.title}">Apartment Title</h6>
+                                        <span class="price-badge" th:text="${apartment.formattedPrice}">$500,000</span>
+                                    </div>
+                                    <p class="text-muted mb-2" th:text="${apartment.city + ', ' + apartment.state}">Location</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-bed me-1"></i>
+                                            <span th:text="${apartment.bedrooms}">3</span> bed
+                                            <i class="fas fa-bath ms-2 me-1"></i>
+                                            <span th:text="${apartment.bathrooms}">2</span> bath
+                                        </small>
+                                        <small class="text-muted" th:text="${apartment.squareFeet + ' sq ft'}">1,500 sq ft</small>
+                                    </div>
+                                    <a th:href="@{/apartments/{id}(id=${apartment.id})}" class="btn btn-primary w-100">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="welcome-card">
+                            <h4>Quick Actions</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <a href="/appointments/my" class="btn btn-primary w-100 mb-2">
+                                        <i class="fas fa-calendar-check me-2"></i>My Appointments
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="/appointment-requests/submit" class="btn btn-primary w-100 mb-2">
+                                        <i class="fas fa-calendar-plus me-2"></i>Request Appointment
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="/client/profile" class="btn btn-outline-primary w-100 mb-2">
+                                        <i class="fas fa-user-edit me-2"></i>Edit Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

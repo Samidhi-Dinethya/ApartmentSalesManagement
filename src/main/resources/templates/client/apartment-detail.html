@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${apartment.title}">Apartment Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; margin: 2px 0; border-radius: 8px; transition: all 0.3s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        .main-content { background-color: #f8f9fa; min-height: 100vh; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .apartment-image { height: 300px; object-fit: cover; border-radius: 15px; }
+        .price-badge { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; }
+        .feature-icon { color: #667eea; font-size: 1.2rem; }
+        .rating-stars { color: #ffc107; font-size: 1.2rem; }
+        .review-card { border-left: 4px solid #667eea; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .stats-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 20px; text-align: center; }
+        .stats-number { font-size: 2rem; font-weight: bold; }
+        .stats-label { font-size: 0.9rem; opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <h4 class="mb-4"><i class="fas fa-user me-2"></i>Client Panel</h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" th:href="@{/client/dashboard}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a class="nav-link" th:href="@{/client/apartments}"><i class="fas fa-search me-2"></i>Browse Apartments</a>
+                        <a class="nav-link" th:href="@{/client/agents}"><i class="fas fa-user-tie me-2"></i>Our Agents</a>
+                        <a class="nav-link" th:href="@{/client/my-apartments}"><i class="fas fa-home me-2"></i>My Apartments</a>
+                        <a class="nav-link" th:href="@{/appointments/my}"><i class="fas fa-calendar-check me-2"></i>My Appointments</a>
+                        <a class="nav-link" th:href="@{/appointment-requests/submit}"><i class="fas fa-calendar-plus me-2"></i>Request Appointment</a>
+                        <a class="nav-link" th:href="@{/reviews/my}"><i class="fas fa-star me-2"></i>My Reviews</a>
+                        <a class="nav-link" th:href="@{/client/profile}"><i class="fas fa-user-edit me-2"></i>My Profile</a>
+                        <hr class="my-3">
+                        <a class="nav-link" th:href="@{/}"><i class="fas fa-home me-2"></i>Back to Home</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-home me-2"></i>Apartment Details</h2>
+                        <div>
+                            <a th:href="@{/client/apartments}" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Apartments
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <div class="row">
+                        <!-- Main Content -->
+                        <div class="col-lg-8">
+                            <!-- Apartment Images -->
+                            <div class="card mb-4">
+                                <div class="card-body p-0">
+                                    <img th:src="${apartment.imageUrl != null ? apartment.imageUrl : '/images/default-apartment.jpg'}" 
+                                         alt="Apartment Image" class="apartment-image w-100">
+                                </div>
+                            </div>
+
+                            <!-- Apartment Details -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Apartment Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-bed feature-icon me-2"></i>Bedrooms</h6>
+                                                <p class="mb-0" th:text="${apartment.bedrooms}">3</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-bath feature-icon me-2"></i>Bathrooms</h6>
+                                                <p class="mb-0" th:text="${apartment.bathrooms}">2</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-ruler-combined feature-icon me-2"></i>Square Feet</h6>
+                                                <p class="mb-0" th:text="${apartment.squareFeet + ' sq ft'}">1,500 sq ft</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-map-marker-alt feature-icon me-2"></i>Location</h6>
+                                                <p class="mb-0" th:text="${apartment.city + ', ' + apartment.state}">City, State</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <h6><i class="fas fa-tag feature-icon me-2"></i>Status</h6>
+                                                <span class="badge"
+                                                      th:classappend="${apartment.status.name() == 'AVAILABLE'} ? ' bg-success' : (${apartment.status.name() == 'SOLD'} ? ' bg-danger' : (${apartment.status.name() == 'UNDER_CONTRACT'} ? ' bg-warning' : ' bg-secondary'))"
+                                                      th:text="${apartment.status}">Available</span>
+                                            </div>
+                                            <div class="mb-3" th:if="${apartment.owner != null}">
+                                                <h6><i class="fas fa-user feature-icon me-2"></i>Owner</h6>
+                                                <p class="mb-0" th:text="${apartment.owner.fullName}">Owner Name</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div th:if="${apartment.description != null and !apartment.description.isEmpty()}">
+                                        <h6><i class="fas fa-align-left feature-icon me-2"></i>Description</h6>
+                                        <p th:text="${apartment.description}">Apartment description...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reviews Section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-star me-2"></i>Reviews</h5>
+                                    <div>
+                                        <a th:href="@{/reviews/apartment/{id}(id=${apartment.id})}" class="btn btn-light btn-sm me-2">
+                                            <i class="fas fa-eye me-1"></i>View All Reviews
+                                        </a>
+                                        <a th:href="@{/reviews/create/{id}(id=${apartment.id})}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-plus me-1"></i>Write Review
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                                        <h5 class="text-muted">Reviews Available</h5>
+                                        <p class="text-muted">View and write reviews for this apartment.</p>
+                                        <a th:href="@{/reviews/apartment/{id}(id=${apartment.id})}" class="btn btn-primary me-2">
+                                            <i class="fas fa-eye me-2"></i>View Reviews
+                                        </a>
+                                        <a th:href="@{/reviews/create/{id}(id=${apartment.id})}" class="btn btn-warning">
+                                            <i class="fas fa-plus me-2"></i>Write Review
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar -->
+                        <div class="col-lg-4">
+                            <!-- Price and Quick Stats -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white text-center">
+                                    <h4 class="mb-0" th:text="${apartment.formattedPrice}">$500,000</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="stats-card mb-3">
+                                                <div class="stats-number" th:text="${apartment.bedrooms}">3</div>
+                                                <div class="stats-label">Bedrooms</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stats-card mb-3">
+                                                <div class="stats-number" th:text="${apartment.bathrooms}">2</div>
+                                                <div class="stats-label">Bathrooms</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stats-card mb-3">
+                                                <div class="stats-number" th:text="${apartment.squareFeet}">1,500</div>
+                                                <div class="stats-label">Sq Ft</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-cogs me-2"></i>Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a th:href="@{/appointments/create/{id}(id=${apartment.id})}" class="btn btn-primary">
+                                            <i class="fas fa-calendar-plus me-2"></i>Schedule Viewing
+                                        </a>
+                                        <a th:href="@{/reviews/create/{id}(id=${apartment.id})}" class="btn btn-warning">
+                                            <i class="fas fa-star me-2"></i>Write Review
+                                        </a>
+                                        <a th:href="@{/appointment-requests/submit}" class="btn btn-info">
+                                            <i class="fas fa-calendar-check me-2"></i>Request Appointment
+                                        </a>
+                                        <a th:href="@{/reviews/apartment/{id}(id=${apartment.id})}" class="btn btn-outline-primary">
+                                            <i class="fas fa-star me-2"></i>View Reviews
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Info -->
+                            <div class="card" th:if="${apartment.owner != null}">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-user me-2"></i>Contact Owner</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <i class="fas fa-user-circle fa-3x text-muted mb-3"></i>
+                                        <h6 th:text="${apartment.owner.fullName}">Owner Name</h6>
+                                        <p class="text-muted mb-3" th:text="${apartment.owner.email}">owner@email.com</p>
+                                        <a th:href="'mailto:' + ${apartment.owner.email}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-envelope me-1"></i>Send Email
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

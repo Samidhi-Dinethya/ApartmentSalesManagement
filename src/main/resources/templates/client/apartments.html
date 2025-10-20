@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Apartments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; margin: 2px 0; border-radius: 8px; transition: all 0.3s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        .main-content { background-color: #f8f9fa; min-height: 100vh; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .apartment-image { height: 200px; object-fit: cover; border-radius: 15px 15px 0 0; }
+        .price-badge { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .feature-icon { color: #667eea; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .search-section { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <h4 class="mb-4"><i class="fas fa-user me-2"></i>Client Panel</h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" th:href="@{/client/dashboard}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a class="nav-link active" th:href="@{/client/apartments}"><i class="fas fa-search me-2"></i>Browse Apartments</a>
+                        <a class="nav-link" th:href="@{/client/agents}"><i class="fas fa-user-tie me-2"></i>Our Agents</a>
+                        <a class="nav-link" th:href="@{/client/my-apartments}"><i class="fas fa-home me-2"></i>My Apartments</a>
+                        <a class="nav-link" th:href="@{/appointments/my}"><i class="fas fa-calendar-check me-2"></i>My Appointments</a>
+                        <a class="nav-link" th:href="@{/appointment-requests/submit}"><i class="fas fa-calendar-plus me-2"></i>Request Appointment</a>
+                        <a class="nav-link" th:href="@{/reviews/my}"><i class="fas fa-star me-2"></i>My Reviews</a>
+                        <a class="nav-link" th:href="@{/client/profile}"><i class="fas fa-user-edit me-2"></i>My Profile</a>
+                        <hr class="my-3">
+                        <a class="nav-link" th:href="@{/}"><i class="fas fa-home me-2"></i>Back to Home</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-search me-2"></i>Browse Apartments</h2>
+                        <div>
+                            <a th:href="@{/client/dashboard}" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h4 class="mb-3"><i class="fas fa-search me-2"></i>Search Apartments</h4>
+                                <form th:action="@{/apartments/search}" method="get">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="query" class="form-label">Search by title, city, or description</label>
+                                                <input type="text" id="query" name="query" class="form-control" placeholder="Enter search terms...">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="city" class="form-label">City</label>
+                                                <input type="text" id="city" name="city" class="form-control" placeholder="City">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mb-3">
+                                                <label for="minBedrooms" class="form-label">Min Bedrooms</label>
+                                                <select id="minBedrooms" name="minBedrooms" class="form-select">
+                                                    <option value="">Any</option>
+                                                    <option value="1">1+</option>
+                                                    <option value="2">2+</option>
+                                                    <option value="3">3+</option>
+                                                    <option value="4">4+</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="minPrice" class="form-label">Min Price</label>
+                                                <input type="number" id="minPrice" name="minPrice" class="form-control" placeholder="Min Price">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="maxPrice" class="form-label">Max Price</label>
+                                                <input type="number" id="maxPrice" name="maxPrice" class="form-control" placeholder="Max Price">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">&nbsp;</label>
+                                                <div class="d-grid">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-search me-2"></i>Search
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h5 class="mb-3">Quick Actions</h5>
+                                    <div class="d-grid gap-2">
+                                        <a th:href="@{/appointment-requests/submit}" class="btn btn-warning">
+                                            <i class="fas fa-calendar-plus me-2"></i>Request Appointment
+                                        </a>
+                                        <a th:href="@{/reviews/my}" class="btn btn-info">
+                                            <i class="fas fa-star me-2"></i>My Reviews
+                                        </a>
+                                        <a th:href="@{/appointments/my}" class="btn btn-success">
+                                            <i class="fas fa-calendar-check me-2"></i>My Appointments
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Count -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4><i class="fas fa-list me-2"></i>Available Apartments <span class="badge bg-primary" th:text="${#lists.size(apartments)}">0</span></h4>
+                    </div>
+
+                    <!-- Apartments Grid -->
+                    <div th:if="${!apartments.empty}" class="row">
+                        <div th:each="apartment : ${apartments}" class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100">
+                                <img th:src="${apartment.imageUrl != null ? apartment.imageUrl : '/images/default-apartment.jpg'}" 
+                                     alt="Apartment Image" class="apartment-image w-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title" th:text="${apartment.title}">Apartment Title</h6>
+                                        <span class="price-badge" th:text="${apartment.formattedPrice}">$500,000</span>
+                                    </div>
+                                    
+                                    <p class="text-muted mb-3" th:text="${apartment.address}">Apartment Address</p>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-bed feature-icon me-2"></i>
+                                            <span th:text="${apartment.bedrooms}">3</span>
+                                            <i class="fas fa-bath feature-icon ms-3 me-2"></i>
+                                            <span th:text="${apartment.bathrooms}">2</span>
+                                        </div>
+                                        <span class="badge"
+                                              th:classappend="${apartment.status != null and apartment.status.name() == 'AVAILABLE'} ? ' bg-success' : (${apartment.status != null and apartment.status.name() == 'SOLD'} ? ' bg-danger' : (${apartment.status != null and apartment.status.name() == 'UNDER_CONTRACT'} ? ' bg-warning' : (${apartment.status != null and apartment.status.name() == 'RENTED'} ? ' bg-secondary' : ' bg-secondary')))"
+                                              th:text="${apartment.status != null ? (apartment.status.name() == 'AVAILABLE' ? 'Available' : (apartment.status.name() == 'SOLD' ? 'Sold' : (apartment.status.name() == 'UNDER_CONTRACT' ? 'Under Contract' : (apartment.status.name() == 'RENTED' ? 'Rented' : apartment.status.name())))) : 'Available'}">Status</span>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-ruler-combined me-1"></i>
+                                            <span th:text="${apartment.squareFeet + ' sq ft'}">1,500 sq ft</span>
+                                        </small>
+                                        <small class="text-muted" th:text="${apartment.city + ', ' + apartment.state}">City, State</small>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <a th:href="@{/client/apartments/{id}(id=${apartment.id})}" class="btn btn-primary">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </a>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <a th:href="@{/reviews/apartment/{id}(id=${apartment.id})}" class="btn btn-outline-info btn-sm w-100">
+                                                    <i class="fas fa-star me-1"></i>Reviews
+                                                </a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a th:href="@{/reviews/create/{id}(id=${apartment.id})}" class="btn btn-outline-warning btn-sm w-100">
+                                                    <i class="fas fa-plus me-1"></i>Review
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Results -->
+                    <div th:if="${apartments.empty}" class="text-center py-5">
+                        <i class="fas fa-home fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Apartments Found</h4>
+                        <p class="text-muted">Try adjusting your search criteria or check back later for new listings.</p>
+                        <a th:href="@{/client/apartments}" class="btn btn-primary">
+                            <i class="fas fa-refresh me-2"></i>View All Apartments
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

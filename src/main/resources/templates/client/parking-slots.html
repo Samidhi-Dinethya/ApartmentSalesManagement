@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assigned Parking Slots - Skyline Apartments</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: #ecf0f1;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .parking-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+            border-left: 5px solid #667eea;
+        }
+        
+        .parking-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .parking-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .parking-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .status-occupied {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-available {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .status-reserved {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .status-maintenance {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .type-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .feature-icon {
+            color: #28a745;
+            margin-right: 8px;
+        }
+        
+        .feature-disabled {
+            color: #6c757d;
+        }
+        
+        .monthly-fee {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: #2c3e50 !important;
+        }
+        
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-parking-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .no-parking-message i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-building me-2"></i>
+                Skyline Apartments
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>
+                        <span th:text="${user.fullName}">Client</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/client/dashboard">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="/client/profile">My Profile</a></li>
+                        <li><a class="dropdown-item" href="/appointments/my">My Appointments</a></li>
+                        <li><a class="dropdown-item" href="/appointment-requests/submit">Request Appointment</a></li>
+                        <li><a class="dropdown-item" href="/reviews/my">My Reviews</a></li>
+                        <li><a class="dropdown-item" href="/client/parking-slots">Assigned Parking Slots</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <div class="position-sticky pt-3">
+                    <!-- User Info -->
+                    <div class="user-info">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-circle fa-3x"></i>
+                        </div>
+                        <h6 th:text="${user.fullName}">Client Name</h6>
+                        <small th:text="${user.email}">client@email.com</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/agents">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Our Agents
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointments/my">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                My Appointments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointment-requests/submit">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                Request Appointment
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/reviews/my">
+                                <i class="fas fa-star me-2"></i>
+                                My Reviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/client/parking-slots">
+                                <i class="fas fa-car me-2"></i>
+                                Assigned Parking Slots
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/client/profile">
+                                <i class="fas fa-user-edit me-2"></i>
+                                My Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">
+                                <i class="fas fa-home me-2"></i>
+                                Back to Home
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-car me-2"></i>
+                        Assigned Parking Slots
+                    </h1>
+                </div>
+
+                <!-- Statistics Card -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-car me-3"></i>
+                                <div>
+                                    <h3 th:text="${totalAssignedSlots}">0</h3>
+                                    <p class="mb-0">Total Assigned Slots</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parking Slots List -->
+                <div th:if="${assignedParkingSlots != null and !assignedParkingSlots.isEmpty()}">
+                    <div class="row">
+                        <div th:each="parking : ${assignedParkingSlots}" class="col-md-6 col-lg-4">
+                            <div class="parking-card">
+                                <div class="parking-header">
+                                    <div class="parking-number" th:text="'Slot ' + ${parking.spaceNumber}">Slot A-101</div>
+                                    <span class="status-badge status-occupied" th:text="${parking.status}">OCCUPIED</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="type-badge" th:text="${parking.type}">STANDARD</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-map-marker-alt me-2"></i>Location</h6>
+                                    <p class="mb-0" th:text="${parking.location}">Building A, Level 1</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-dollar-sign me-2"></i>Monthly Fee</h6>
+                                    <p class="monthly-fee mb-0" th:text="'$' + ${#numbers.formatDecimal(parking.monthlyFee, 1, 2)}">$150.00</p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h6><i class="fas fa-cogs me-2"></i>Features</h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span th:if="${parking.covered}" class="badge bg-success">
+                                            <i class="fas fa-shield-alt me-1"></i>Covered
+                                        </span>
+                                        <span th:unless="${parking.covered}" class="badge bg-secondary">
+                                            <i class="fas fa-shield-alt me-1"></i>Uncovered
+                                        </span>
+                                        
+                                        <span th:if="${parking.electricCharging}" class="badge bg-primary">
+                                            <i class="fas fa-bolt me-1"></i>Electric Charging
+                                        </span>
+                                        <span th:unless="${parking.electricCharging}" class="badge bg-secondary">
+                                            <i class="fas fa-bolt me-1"></i>No Charging
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${parking.maxVehicleLength != null or parking.maxVehicleWidth != null}" class="mb-3">
+                                    <h6><i class="fas fa-ruler me-2"></i>Vehicle Size Limits</h6>
+                                    <div class="row">
+                                        <div th:if="${parking.maxVehicleLength != null}" class="col-6">
+                                            <small class="text-muted">Max Length:</small><br>
+                                            <span th:text="${parking.maxVehicleLength} + ' ft'">20 ft</span>
+                                        </div>
+                                        <div th:if="${parking.maxVehicleWidth != null}" class="col-6">
+                                            <small class="text-muted">Max Width:</small><br>
+                                            <span th:text="${parking.maxVehicleWidth} + ' ft'">8 ft</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div th:if="${parking.notes != null and !parking.notes.isEmpty()}" class="mb-3">
+                                    <h6><i class="fas fa-sticky-note me-2"></i>Notes</h6>
+                                    <p class="mb-0 text-muted" th:text="${parking.notes}">Additional notes about this parking slot</p>
+                                </div>
+                                
+                                <div class="text-muted">
+                                    <small>
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Assigned on: <span th:text="${#temporals.format(parking.createdAt, 'MMM dd, yyyy')}">Jan 15, 2024</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Parking Slots Message -->
+                <div th:if="${assignedParkingSlots == null or assignedParkingSlots.isEmpty()}" class="no-parking-message">
+                    <i class="fas fa-car"></i>
+                    <h3>No Assigned Parking Slots</h3>
+                    <p>You don't have any parking slots assigned to you at the moment.</p>
+                    <p class="text-muted">Contact your property manager to request a parking slot assignment.</p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

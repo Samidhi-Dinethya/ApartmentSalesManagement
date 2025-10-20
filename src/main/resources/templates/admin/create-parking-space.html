@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Parking Space - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; margin: 2px 0; border-radius: 8px; transition: all 0.3s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        .main-content { background-color: #f8f9fa; min-height: 100vh; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <h4 class="mb-4"><i class="fas fa-building me-2"></i>Admin Panel</h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" th:href="@{/admin/dashboard}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a class="nav-link" th:href="@{/admin/users}"><i class="fas fa-users me-2"></i>Manage Users</a>
+                        <a class="nav-link" th:href="@{/admin/apartments}"><i class="fas fa-building me-2"></i>Manage Apartments</a>
+                        <a class="nav-link active" th:href="@{/admin/parking}"><i class="fas fa-parking me-2"></i>Parking Management</a>
+                        <a class="nav-link" th:href="@{/appointments/admin}"><i class="fas fa-calendar-check me-2"></i>Manage Appointments</a>
+                        <a class="nav-link" th:href="@{/admin/reports}"><i class="fas fa-chart-bar me-2"></i>Reports</a>
+                        <hr class="my-3">
+                        <a class="nav-link" th:href="@{/}"><i class="fas fa-home me-2"></i>Back to Home</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-plus me-2"></i>Create New Parking Space</h2>
+                        <div>
+                            <a th:href="@{/admin/parking}" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i>Back to Parking Management</a>
+                        </div>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <!-- Create Form -->
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-parking me-2"></i>Parking Space Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/parking/create}" th:object="${parking}" method="post">
+                                <div class="row">
+                                    <!-- Basic Information -->
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Basic Information</h6>
+                                        
+                                        <div class="mb-3">
+                                            <label for="spaceNumber" class="form-label">Space Number <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="spaceNumber" th:field="*{spaceNumber}" 
+                                                   placeholder="e.g., P-001, A-101" required>
+                                            <div class="form-text">Unique identifier for the parking space</div>
+                                            <div th:if="${#fields.hasErrors('spaceNumber')}" class="text-danger">
+                                                <small th:errors="*{spaceNumber}"></small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="location" class="form-label">Location <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="location" th:field="*{location}" 
+                                                   placeholder="e.g., Building A, Level 1" required>
+                                            <div class="form-text">Physical location description</div>
+                                            <div th:if="${#fields.hasErrors('location')}" class="text-danger">
+                                                <small th:errors="*{location}"></small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="monthlyFee" class="form-label">Monthly Fee <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">$</span>
+                                                <input type="number" class="form-control" id="monthlyFee" th:field="*{monthlyFee}" 
+                                                       step="0.01" min="0" placeholder="50.00" required>
+                                            </div>
+                                            <div class="form-text">Monthly rental fee in USD</div>
+                                            <div th:if="${#fields.hasErrors('monthlyFee')}" class="text-danger">
+                                                <small th:errors="*{monthlyFee}"></small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="type" class="form-label">Parking Type <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="type" th:field="*{type}" required>
+                                                <option value="">Select parking type</option>
+                                                <option th:each="type : ${parkingTypes}" 
+                                                        th:value="${type.name()}" 
+                                                        th:text="${type.displayName}"></option>
+                                            </select>
+                                            <div th:if="${#fields.hasErrors('type')}" class="text-danger">
+                                                <small th:errors="*{type}"></small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="status" class="form-label">Status</label>
+                                            <select class="form-select" id="status" th:field="*{status}">
+                                                <option th:each="status : ${parkingStatuses}" 
+                                                        th:value="${status.name()}" 
+                                                        th:text="${status.displayName}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Features and Specifications -->
+                                    <div class="col-md-6">
+                                        <h6 class="text-primary mb-3"><i class="fas fa-cogs me-2"></i>Features & Specifications</h6>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="covered" th:field="*{covered}">
+                                                <label class="form-check-label" for="covered">
+                                                    <i class="fas fa-umbrella me-1"></i>Covered Parking
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="electricCharging" th:field="*{electricCharging}">
+                                                <label class="form-check-label" for="electricCharging">
+                                                    <i class="fas fa-bolt me-1"></i>Electric Vehicle Charging
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="maxVehicleLength" class="form-label">Maximum Vehicle Length (feet)</label>
+                                            <input type="number" class="form-control" id="maxVehicleLength" th:field="*{maxVehicleLength}" 
+                                                   step="0.1" min="0" placeholder="18.0">
+                                            <div class="form-text">Maximum vehicle length that can fit</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="maxVehicleWidth" class="form-label">Maximum Vehicle Width (feet)</label>
+                                            <input type="number" class="form-control" id="maxVehicleWidth" th:field="*{maxVehicleWidth}" 
+                                                   step="0.1" min="0" placeholder="8.0">
+                                            <div class="form-text">Maximum vehicle width that can fit</div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <textarea class="form-control" id="notes" th:field="*{notes}" rows="4" 
+                                                      placeholder="Additional notes about this parking space..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Form Actions -->
+                                <div class="row mt-4">
+                                    <div class="col-12">
+                                        <hr>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a th:href="@{/admin/parking}" class="btn btn-secondary">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-save me-2"></i>Create Parking Space
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

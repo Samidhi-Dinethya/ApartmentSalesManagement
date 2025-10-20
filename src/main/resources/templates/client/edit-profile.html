@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: white; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 12px 20px; margin: 2px 0; border-radius: 8px; transition: all 0.3s; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        .main-content { background-color: #f8f9fa; min-height: 100vh; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-control, .form-select { border-radius: 10px; border: 2px solid #e9ecef; }
+        .form-control:focus, .form-select:focus { border-color: #667eea; box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        .profile-avatar { width: 120px; height: 120px; border-radius: 50%; border: 4px solid #667eea; }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; border-radius: 15px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <h4 class="mb-4"><i class="fas fa-user me-2"></i>Client Panel</h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" th:href="@{/client/dashboard}"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+                        <a class="nav-link" th:href="@{/client/apartments}"><i class="fas fa-search me-2"></i>Browse Apartments</a>
+                        <a class="nav-link" th:href="@{/client/agents}"><i class="fas fa-user-tie me-2"></i>Our Agents</a>
+                        <a class="nav-link" th:href="@{/client/my-apartments}"><i class="fas fa-home me-2"></i>My Apartments</a>
+                        <a class="nav-link" th:href="@{/appointments/my}"><i class="fas fa-calendar-check me-2"></i>My Appointments</a>
+                        <a class="nav-link" th:href="@{/appointment-requests/submit}"><i class="fas fa-calendar-plus me-2"></i>Request Appointment</a>
+                        <a class="nav-link" th:href="@{/reviews/my}"><i class="fas fa-star me-2"></i>My Reviews</a>
+                        <a class="nav-link active" th:href="@{/client/profile}"><i class="fas fa-user-edit me-2"></i>My Profile</a>
+                        <hr class="my-3">
+                        <a class="nav-link" th:href="@{/}"><i class="fas fa-home me-2"></i>Back to Home</a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-edit me-2"></i>Edit Profile</h2>
+                        <div>
+                            <a th:href="@{/client/profile}" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i><span th:text="${success}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <!-- Profile Picture Section -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-camera me-2"></i>Profile Picture</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <img src="/images/default-avatar.png" 
+                                         alt="Profile Picture" class="profile-avatar mb-3">
+                                    <div>
+                                        <button class="btn btn-outline-primary me-2" onclick="alert('Profile picture upload will be implemented')">
+                                            <i class="fas fa-upload me-2"></i>Upload New Photo
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="alert('Remove photo functionality will be implemented')">
+                                            <i class="fas fa-trash me-2"></i>Remove Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Edit Profile Form -->
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Profile Information</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form th:action="@{/client/profile/update}" method="post">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                                    <input type="text" id="firstName" name="firstName" class="form-control" required 
+                                                           th:value="${user.firstName}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                                    <input type="text" id="lastName" name="lastName" class="form-control" required 
+                                                           th:value="${user.lastName}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                                    <input type="email" id="email" name="email" class="form-control" required 
+                                                           th:value="${user.email}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                                                    <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" 
+                                                           th:value="${user.phoneNumber}">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="role" class="form-label">Role</label>
+                                                    <input type="text" id="role" name="role" class="form-control" 
+                                                           th:value="${user.role}" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label">Address</label>
+                                            <input type="text" id="address" name="address" class="form-control" 
+                                                   placeholder="Address not available in current User entity">
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="city" class="form-label">City</label>
+                                                    <input type="text" id="city" name="city" class="form-control" 
+                                                           placeholder="City not available in current User entity">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="state" class="form-label">State</label>
+                                                    <input type="text" id="state" name="state" class="form-control" 
+                                                           placeholder="State not available in current User entity">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="zipCode" class="form-label">Zip Code</label>
+                                                    <input type="text" id="zipCode" name="zipCode" class="form-control" 
+                                                           placeholder="Zip code not available in current User entity">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="bio" class="form-label">Bio</label>
+                                            <textarea id="bio" name="bio" class="form-control" rows="4" 
+                                                      placeholder="Bio not available in current User entity"></textarea>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Account Status</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="isActive" name="isActive" 
+                                                               th:checked="${user.isActive}">
+                                                        <label class="form-check-label" for="isActive">
+                                                            Active Account
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Email Verification</label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="isEmailVerified" name="isEmailVerified" 
+                                                               checked disabled>
+                                                        <label class="form-check-label" for="isEmailVerified">
+                                                            Email Verified (Read-only)
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <a th:href="@{/client/profile}" class="btn btn-outline-secondary me-md-2">
+                                                <i class="fas fa-times me-2"></i>Cancel
+                                            </a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Update Profile
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Password Change Section -->
+                            <div class="card mt-4">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>Change Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form th:action="@{/client/profile/change-password}" method="post">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                                    <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="newPassword" class="form-label">New Password</label>
+                                                    <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to change your password?')">
+                                                <i class="fas fa-key me-2"></i>Change Password
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = this.value;
+            
+            if (newPassword !== confirmPassword) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

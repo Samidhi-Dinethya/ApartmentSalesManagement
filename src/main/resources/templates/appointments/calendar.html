@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .calendar-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .calendar-nav { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+        .calendar-day { min-height: 120px; border: 1px solid #dee2e6; padding: 8px; }
+        .calendar-day:hover { background-color: #f8f9fa; }
+        .calendar-day.today { background-color: #e3f2fd; border-color: #2196f3; }
+        .calendar-day.other-month { background-color: #f5f5f5; color: #999; }
+        .appointment-item { font-size: 0.8rem; padding: 2px 4px; margin: 1px 0; border-radius: 3px; }
+        .appointment-scheduled { background-color: #007bff; color: white; }
+        .appointment-confirmed { background-color: #28a745; color: white; }
+        .appointment-completed { background-color: #6c757d; color: white; }
+        .appointment-cancelled { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-calendar-alt me-2"></i>Appointment Calendar</h2>
+            <div>
+                <a th:href="@{/appointments/create}" class="btn btn-success me-2">
+                    <i class="fas fa-plus me-2"></i>Schedule New Appointment
+                </a>
+                <a th:href="@{/appointments/my}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-2"></i>My Appointments
+                </a>
+            </div>
+        </div>
+
+        <!-- Calendar Navigation -->
+        <div class="card mb-4">
+            <div class="calendar-nav p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <a th:href="@{/appointments/calendar(date=${#temporals.format(#temporals.minus(selectedDate, 'P1M'), 'yyyy-MM-dd')})}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-chevron-left me-2"></i>Previous Month
+                    </a>
+                    <h4 class="mb-0" th:text="${#temporals.format(selectedDate, 'MMMM yyyy')}">Month Year</h4>
+                    <a th:href="@{/appointments/calendar(date=${#temporals.format(#temporals.plus(selectedDate, 'P1M'), 'yyyy-MM-dd')})}" 
+                       class="btn btn-outline-primary">
+                        Next Month<i class="fas fa-chevron-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar -->
+        <div class="card">
+            <div class="card-body p-0">
+                <!-- Calendar Header -->
+                <div class="calendar-header p-3">
+                    <div class="row text-center">
+                        <div class="col">Sun</div>
+                        <div class="col">Mon</div>
+                        <div class="col">Tue</div>
+                        <div class="col">Wed</div>
+                        <div class="col">Thu</div>
+                        <div class="col">Fri</div>
+                        <div class="col">Sat</div>
+                    </div>
+                </div>
+
+                <!-- Calendar Days -->
+                <div class="calendar-body">
+                    <div class="row" th:each="week : ${#temporals.createCalendar(selectedDate)}">
+                        <div class="col calendar-day" 
+                             th:each="day : ${week}"
+                             th:classappend="${day == null ? 'other-month' : ''} + 
+                                            ${day != null and day == #temporals.createToday() ? 'today' : ''}">
+                            
+                            <div th:if="${day != null}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <span class="fw-bold" th:text="${#temporals.format(day, 'd')}">1</span>
+                                    <a th:if="${#lists.size(#lists.isEmpty(appointments) ? {} : appointments) > 0}" 
+                                       th:href="@{/appointments/calendar(date=${#temporals.format(day, 'yyyy-MM-dd')})}" 
+                                       class="btn btn-sm btn-outline-primary btn-sm">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                                
+                                <!-- Appointments for this day -->
+                                <div th:each="appointment : ${appointments}" 
+                                     th:if="${#temporals.format(appointment.appointmentDateTime, 'yyyy-MM-dd') == #temporals.format(day, 'yyyy-MM-dd')}"
+                                     class="appointment-item"
+                                     th:classappend="${appointment.status.name() == 'SCHEDULED' ? 'appointment-scheduled' : 
+                                                      appointment.status.name() == 'CONFIRMED' ? 'appointment-confirmed' :
+                                                      appointment.status.name() == 'COMPLETED' ? 'appointment-completed' :
+                                                      appointment.status.name() == 'CANCELLED' ? 'appointment-cancelled' : ''}">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span th:text="${#strings.abbreviate(appointment.client.firstName, 3)}">Client</span>
+                                        <span th:text="${#temporals.format(appointment.appointmentDateTime, 'HH:mm')}">Time</span>
+                                    </div>
+                                    <div th:text="${#strings.abbreviate(appointment.apartment.title, 15)}">Apartment</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">Legend</h6>
+                <div class="row">
+                    <div class="col-md-3">
+                        <span class="appointment-item appointment-scheduled">Scheduled</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="appointment-item appointment-confirmed">Confirmed</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="appointment-item appointment-completed">Completed</span>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="appointment-item appointment-cancelled">Cancelled</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

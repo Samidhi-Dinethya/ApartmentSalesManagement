@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Details - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 2px 0;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .user-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            margin: 0 auto 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0">
+                <div class="sidebar p-3">
+                    <h4 class="mb-4">
+                        <i class="fas fa-building me-2"></i>
+                        Admin Panel
+                    </h4>
+                    <nav class="nav flex-column">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a class="nav-link active" th:href="@{/admin/users}">
+                            <i class="fas fa-users me-2"></i>Manage Users
+                        </a>
+                        <a class="nav-link" th:href="@{/admin/apartments}">
+                            <i class="fas fa-building me-2"></i>Manage Apartments
+                        </a>
+                        <a class="nav-link" th:href="@{/admin/reports}">
+                            <i class="fas fa-chart-bar me-2"></i>Reports
+                        </a>
+                        <hr class="my-3">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10">
+                <div class="main-content p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="fas fa-user me-2"></i>User Details</h2>
+                        <div>
+                            <a th:href="@{/admin/users}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Users
+                            </a>
+                            <a th:href="@{/admin/dashboard}" class="btn btn-outline-primary">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- User Details Card -->
+                    <div class="row" th:if="${user}">
+                        <div class="col-lg-8 mx-auto">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <!-- User Avatar -->
+                                    <div class="user-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    
+                                    <!-- User Name -->
+                                    <h3 class="mb-3" th:text="${user.firstName + ' ' + user.lastName}">User Name</h3>
+                                    
+                                    <!-- User Role Badge -->
+                                    <div class="mb-4">
+                                        <span th:if="${user.role.name() == 'ADMIN'}" 
+                                              class="badge bg-danger fs-6 px-3 py-2">
+                                            <i class="fas fa-user-shield me-2"></i>Administrator
+                                        </span>
+                                        <span th:if="${user.role.name() == 'CLIENT'}" 
+                                              class="badge bg-info fs-6 px-3 py-2">
+                                            <i class="fas fa-user me-2"></i>Client
+                                        </span>
+                                    </div>
+
+                                    <!-- User Status -->
+                                    <div class="mb-4">
+                                        <span th:if="${user.isActive}" 
+                                              class="badge bg-success fs-6 px-3 py-2">
+                                            <i class="fas fa-check-circle me-2"></i>Active Account
+                                        </span>
+                                        <span th:unless="${user.isActive}" 
+                                              class="badge bg-secondary fs-6 px-3 py-2">
+                                            <i class="fas fa-times-circle me-2"></i>Inactive Account
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Information -->
+                            <div class="card mt-4">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>User Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Username:</label>
+                                                <p class="form-control-plaintext" th:text="${user.username}">username</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Email:</label>
+                                                <p class="form-control-plaintext" th:text="${user.email}">email@example.com</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">First Name:</label>
+                                                <p class="form-control-plaintext" th:text="${user.firstName}">First Name</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Last Name:</label>
+                                                <p class="form-control-plaintext" th:text="${user.lastName}">Last Name</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Phone Number:</label>
+                                                <p class="form-control-plaintext" th:text="${user.phoneNumber != null ? user.phoneNumber : 'Not provided'}">Phone</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Account Created:</label>
+                                                <p class="form-control-plaintext" th:text="${#temporals.format(user.createdAt, 'dd MMMM yyyy, HH:mm')}">Date</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">Last Updated:</label>
+                                                <p class="form-control-plaintext" th:text="${user.updatedAt != null ? #temporals.format(user.updatedAt, 'dd MMMM yyyy, HH:mm') : 'Never updated'}">Date</p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold text-muted">User ID:</label>
+                                                <p class="form-control-plaintext" th:text="${user.id}">ID</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="card mt-4">
+                                <div class="card-body text-center">
+                                    <h5 class="mb-3">Actions</h5>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" 
+                                           class="btn btn-warning me-2">
+                                            <i class="fas fa-edit me-2"></i>Edit User
+                                        </a>
+                                        <form th:action="@{/admin/users/{id}/activate(id=${user.id})}" 
+                                              method="post" style="display: inline;" 
+                                              th:if="${!user.isActive}">
+                                            <button type="submit" class="btn btn-success me-2"
+                                                    onclick="return confirm('Are you sure you want to activate this user?')">
+                                                <i class="fas fa-check me-2"></i>Activate User
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/admin/users/{id}/deactivate(id=${user.id})}" 
+                                              method="post" style="display: inline;" 
+                                              th:if="${user.isActive}">
+                                            <button type="submit" class="btn btn-warning me-2"
+                                                    onclick="return confirm('Are you sure you want to deactivate this user?')">
+                                                <i class="fas fa-pause me-2"></i>Deactivate User
+                                            </button>
+                                        </form>
+                                        <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" 
+                                              method="post" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger"
+                                                    onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                                <i class="fas fa-trash me-2"></i>Delete User
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Not Found -->
+                    <div class="row" th:unless="${user}">
+                        <div class="col-lg-6 mx-auto">
+                            <div class="card">
+                                <div class="card-body text-center p-5">
+                                    <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                                    <h4 class="text-muted">User Not Found</h4>
+                                    <p class="text-muted">The requested user could not be found.</p>
+                                    <a th:href="@{/admin/users}" class="btn btn-primary">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Users
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
